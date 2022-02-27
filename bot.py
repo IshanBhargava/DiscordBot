@@ -47,10 +47,10 @@ async def update_stats():
             messages = 0
             joined = 0
 
-            await asyncio.sleep(60)
+            await asyncio.sleep(3600)
         except Exception as e:
             print(e)
-            await asyncio.sleep(60)
+            await asyncio.sleep(3600)
 
 
 @client.event
