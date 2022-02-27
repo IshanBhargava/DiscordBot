@@ -1,13 +1,15 @@
+import asyncio
 import random
+import time
 
 import discord
-import time
-import asyncio
+
 
 def read_token():
     with open("token.txt", "r") as f:
         lines = f.readlines()
         return lines[0]
+
 
 messages = joined = 0
 
@@ -22,9 +24,13 @@ channel_ids: dict = {
     "bot-logs": 946392782912761859,
     "general": 946301559040507927
 }
-
-admin = 'Deadshot#7762'
 channels = []
+
+commands_dict: {} = {
+    "!hello": "Greets the user",
+    "!users": "Displays number of members in server",
+    "!draw": "Randomly selects users who reacted on the specified msg. Only Mods can use this."
+}
 
 
 @client.event
@@ -71,13 +77,15 @@ async def on_message(message):
 
     if message.content in ["!help", "!commands"]:
         embed = discord.Embed(title="Help on DeadBot", description="Some Bot commands")
-        embed.add_field(name="!hello", value="Greets the user")
-        embed.add_field(name="!users", value="Returns number of users")
+        for command, use in commands_dict.items():
+            embed.add_field(name=command, value=use)
+
         if str(message.channel) != "bot-commands":
-            embed.set_footer(text=f"""Use these commands in {client.get_channel(channel_ids["bot-commands"]).name} channel""")
+            embed.set_footer(
+                text=f"""Use these commands in {client.get_channel(channel_ids["bot-commands"]).name} channel""")
         await message.channel.send(content=None, embed=embed)
 
-    if message.content.startswith("!"):
+    elif message.content.startswith("!"):
         if "!draw" in message.content:
             mod_flag = False
             for role in message.author.roles:
