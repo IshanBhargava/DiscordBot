@@ -1,3 +1,5 @@
+import random
+
 import discord
 import time
 import asyncio
@@ -21,8 +23,16 @@ channel_ids: dict = {
     "general": 946301559040507927
 }
 
-channels = ['general', 'bot-commands', 'bot-logs']
-commands = ["!hello", "!users"]
+admin = 'Deadshot#7762'
+channels = []
+
+
+@client.event
+async def on_ready():
+    print(client.user.name)
+    for guild in client.guilds:
+        for channel in guild.text_channels:
+            channels.append(channel.name)
 
 
 async def update_stats():
@@ -59,9 +69,6 @@ async def on_message(message):
     global messages
     messages += 1
 
-    if message.content:
-        print("{0.author} sent a message - {0.content}".format(message))
-
     if message.content in ["!help", "!commands"]:
         embed = discord.Embed(title="Help on DeadBot", description="Some Bot commands")
         embed.add_field(name="!hello", value="Greets the user")
@@ -70,13 +77,41 @@ async def on_message(message):
             embed.set_footer(text=f"""Use these commands in {client.get_channel(channel_ids["bot-commands"]).name} channel""")
         await message.channel.send(content=None, embed=embed)
 
-    if message.content.startswith("!") and message.content in commands:
-        if str(message.channel) == "bot-commands":
+    if message.content.startswith("!"):
+        if "!draw" in message.content:
+            mod_flag = False
+            for role in message.author.roles:
+                if role.name == "Mod":
+                    mod_flag = True
+                    break
+            if mod_flag:
+                channel = client.get_channel(message.channel.id)
+                msg_id = int(message.content.split(' ')[2])
+                draw_count = int(message.content.split(' ')[1])
+
+                msg = await channel.fetch_message(msg_id)
+                reacted_users = set()
+                for reaction in msg.reactions:
+                    async for user in reaction.users():
+                        reacted_users.add(user.name)
+
+                if draw_count > len(reacted_users):
+                    await message.channel.send(f"users: {', '.join(user for user in reacted_users)}")
+                else:
+                    await message.channel.send(f"users: {', '.join(user for user in random.sample(reacted_users, draw_count))}")
+            else:
+                await message.channel.send(f"""{message.author.mention} you are not authorized to use this command""")
+                await client.get_channel(channel_ids["bot-logs"]).send(f"""User: {message.author} tried to execute an unauthorized command \'{message.content}\' in {message.channel}""")
+
+        elif str(message.channel) == "bot-commands":
             if message.content == "!hello":
                 await message.channel.send("Hi")
 
-            if message.content == "!users":
+            elif message.content == "!users":
                 await message.channel.send("Number of Members: {0.member_count}".format(serverid))
+
+            else:
+                await message.channel.send(f"""{message.content} is not a valid command""")
 
         else:
             await client.get_channel(channel_ids["bot-logs"]).send(f"""User: {message.author} tried to execute command \'{message.content}\' in {message.channel}""")
