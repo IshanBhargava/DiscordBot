@@ -4,6 +4,8 @@ import time
 
 import discord
 
+import ApiService as api
+
 
 def read_token():
     with open("token.txt", "r") as f:
@@ -29,7 +31,9 @@ channels = []
 commands_dict: {} = {
     "!hello": "Greets the user",
     "!users": "Displays number of members in server",
-    "!draw": "Randomly selects users who reacted on the specified msg. Only Mods can use this."
+    "!draw": "Randomly selects users who reacted on the specified msg. Only Mods can use this.",
+    "!ChuckNorrisJoke": "Tells a Chuck Norris joke",
+    "!joke": "Tells a joke"
 }
 
 
@@ -106,24 +110,27 @@ async def on_message(message):
                 if draw_count > len(reacted_users):
                     await message.channel.send(f"users: {', '.join(user for user in reacted_users)}")
                 else:
-                    await message.channel.send(f"users: {', '.join(user for user in random.sample(reacted_users, draw_count))}")
+                    await message.channel.send(
+                        f"users: {', '.join(user for user in random.sample(reacted_users, draw_count))}")
             else:
                 await message.channel.send(f"""{message.author.mention} you are not authorized to use this command""")
-                await client.get_channel(channel_ids["bot-logs"]).send(f"""User: {message.author} tried to execute an unauthorized command \'{message.content}\' in {message.channel}""")
+                await client.get_channel(channel_ids["bot-logs"]).send(
+                    f"""User: {message.author} tried to execute an unauthorized command \'{message.content}\' in {message.channel}""")
 
-        elif str(message.channel) == "bot-commands":
-            if message.content == "!hello":
-                await message.channel.send("Hi")
+        elif message.content == "!hello":
+            await message.channel.send("Hi")
 
-            elif message.content == "!users":
-                await message.channel.send("Number of Members: {0.member_count}".format(serverid))
+        elif message.content == "!users":
+            await message.channel.send("Number of Members: {0.member_count}".format(serverid))
 
-            else:
-                await message.channel.send(f"""{message.content} is not a valid command""")
+        elif message.content == "!ChuckNorrisJoke":
+            await message.channel.send(api.chucknorrisjokes())
+
+        elif message.content == "!joke":
+            await message.channel.send(api.joke())
 
         else:
-            await client.get_channel(channel_ids["bot-logs"]).send(f"""User: {message.author} tried to execute command \'{message.content}\' in {message.channel}""")
-            await message.channel.send(f"""{message.author.mention} the bot commands can only be executed in {client.get_channel(channel_ids["bot-commands"]).mention} channel""")
+            await message.channel.send(f"""{message.content} is not a valid command""")
 
 
 @client.event
