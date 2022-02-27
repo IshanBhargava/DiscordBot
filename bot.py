@@ -3,6 +3,7 @@ import random
 import time
 
 import discord
+from discord.ext import commands
 
 import ApiService as api
 
@@ -18,7 +19,8 @@ messages = joined = 0
 token = read_token()
 
 intents = discord.Intents().all()
-client = discord.Client(intents=intents)
+client = commands.Bot(command_prefix="!", intents=intents)
+client.load_extension("BotCommands")
 
 channel_ids: dict = {
     "server-id": 946301558545592341,
@@ -39,7 +41,6 @@ commands_dict: {} = {
 
 @client.event
 async def on_ready():
-    print(client.user.name)
     for guild in client.guilds:
         for channel in guild.text_channels:
             channels.append(channel.name)
