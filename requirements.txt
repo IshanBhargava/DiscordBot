@@ -1,4 +1,5 @@
-git+https://github.com/Rapptz/discord.py
+py-cord
+py-cord[voice]
 PyNaCl==1.3.0
 pandas
 numpy
