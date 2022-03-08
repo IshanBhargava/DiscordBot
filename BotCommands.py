@@ -1,5 +1,7 @@
 import random
 
+import discord
+from discord import FFmpegPCMAudio
 from discord.ext import commands
 
 import ApiService as api
@@ -61,7 +63,54 @@ async def joke(ctx):
     await ctx.send(api.joke())
 
 
+@commands.command()
+async def play(ctx):
+    voice_channel = discord.utils.get(ctx.guild.voice_channels, name='Music')
+    voice = await voice_channel.connect()
+    print("1: ", voice.is_connected())
+    source = FFmpegPCMAudio('audio.mp3')
+    player = voice.play(source)
+
+
+@commands.command()
+async def leave(ctx):
+    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+    if voice.is_connected():
+        await voice.disconnect()
+    else:
+        await ctx.send("The bot is not connected to any voice channel")
+
+
+@commands.command()
+async def pause(ctx):
+    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+    if voice.is_playing():
+        voice.pause()
+    else:
+        await ctx.send("No audio is playing")
+
+
+@commands.command()
+async def resume(ctx):
+    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+    if voice.is_paused():
+        voice.resume()
+    else:
+        await ctx.send("Audio is not paused")
+
+
+@commands.command()
+async def stop(ctx):
+    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+    voice.stop()
+
+
 def setup(bot):
     bot.add_command(hello)
     bot.add_command(draw)
     bot.add_command(joke)
+    bot.add_command(play)
+    bot.add_command(leave)
+    bot.add_command(pause)
+    bot.add_command(resume)
+    bot.add_command(stop)
