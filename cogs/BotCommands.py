@@ -1,6 +1,8 @@
 import random
 
+import discord
 from discord.ext import commands
+from discord.ui import View, Button
 
 import ApiService as api
 
@@ -47,11 +49,13 @@ class BotCommands(commands.Cog):
                     msg = None
 
                 if msg is not None:
-                    reacted_users = set()
+                    reacted_users = []
 
                     for reaction in msg.reactions:
                         async for user in reaction.users():
-                            reacted_users.add(f"""{user.name}#{user.discriminator}""")
+                            if user not in reacted_users:
+                                reacted_users.append(f"""{user.name}#{user.discriminator}""")
+                    random.shuffle(reacted_users)
                     if len(reacted_users) == 0:
                         await ctx.send(f"Oops! Nobody reacted")
                     elif draw_count > len(reacted_users):
@@ -72,6 +76,15 @@ class BotCommands(commands.Cog):
     async def joke(self, ctx):
         await ctx.trigger_typing()
         await ctx.send(api.joke())
+
+    @commands.command(
+        help="Button Sample"
+    )
+    async def button(self, ctx):
+        button = Button(label="Click", style=discord.ButtonStyle.primary)
+        link_button = Button(label="Go to Google", url="https://www.google.com")
+        view = View(button, link_button)
+        await ctx.send("button", view=view)
 
 
 def setup(client):
