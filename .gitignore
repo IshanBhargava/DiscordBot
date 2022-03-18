@@ -1,3 +1,5 @@
 /*.env
 /*.log
 /*.mp3
+/*.txt
+/test.py
