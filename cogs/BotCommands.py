@@ -86,6 +86,23 @@ class BotCommands(commands.Cog):
         view = View(button, link_button)
         await ctx.send("button", view=view)
 
+    @commands.command(
+        help="Creates Polls"
+    )
+    async def poll(self, ctx, *args):
+        embed = discord.Embed(
+            title="POLL",
+            color=discord.Colour.purple()
+        )
+        embed.add_field(
+            name=f"""{args[0]}""",
+            value="\n".join(args[1:])
+        )
+
+        msg = await ctx.send(embed=embed)
+        for i in range(1, len(args)):
+            await msg.add_reaction(f'''{args[i][0:1]}''')
+
 
 def setup(client):
     client.add_cog(BotCommands(client))
